@@ -16,7 +16,20 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r cars}
-3+4
+library(knitr)
+library(gridExtra)
+library(GGally)
+library(kableExtra)
+library(jtools)
+library(rsample)
+library(broom)
+library(tidyverse)
+derby.df <- read.csv("~/Library/CloudStorage/OneDrive-UniversityofPittsburgh/derby.csv")
+derby.df <- derby.df %>%
+  mutate( fast = ifelse(condition=="fast",1,0), 
+          good = ifelse(condition=="good",1,0),
+          yearnew = year - 1896,
+          fastfactor = ifelse(fast == 0, "not fast", "fast"))
 ```
 
 ## Including Plots

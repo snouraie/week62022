@@ -32,6 +32,32 @@ derby.df <- derby.df %>%
           fastfactor = ifelse(fast == 0, "not fast", "fast"))
 ```
 
+```{r}
+table1 <- derby.df %>%
+  filter(row_number() < 6 | row_number() > 117)
+kable(table1, booktabs=T,caption="The first five and the last five observations from the Kentucky Derby case study.") %>%
+  kable_styling(latex_options = "scale_down")
+```
+```{r}
+speed_hist <- ggplot(data = derby.df, aes(x = speed)) + 
+  geom_histogram(binwidth = 0.5, fill = "white",
+                 color = "black") + 
+  xlab("Winning speed (ft/s)") + ylab("Frequency") + labs(title="(a)")
+starters_hist <- ggplot(data = derby.df, aes(x = starters)) + 
+  geom_histogram(binwidth = 3, fill = "white",
+                 color = "black") + 
+  xlab("Number of starters") + ylab("Frequency") + labs(title="(b)")
+grid.arrange(speed_hist, starters_hist, ncol = 2)
+```
+```{r bivariate, fig.align = "center", out.width = "90%", fig.cap = 'Relationships between pairs of variables in the Kentucky Derby data set.', echo=FALSE, warning=FALSE, message = FALSE}
+gg <- ggpairs(data = derby.df, 
+              columns = c("condition", "year", "starters", "speed"))
+gg[4,1] <- gg[4,1] + geom_histogram( binwidth = 0.75)
+gg[2,1] <- gg[2,1] + geom_histogram( binwidth = 20)
+gg[3,1] <- gg[3,1] + geom_histogram( binwidth = 3)
+gg
+```
+
 ## Including Plots
 
 You can also embed plots, for example:

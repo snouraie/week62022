@@ -69,6 +69,65 @@ model1 <- lm(speed ~ year, data = derby.df)
 coef(summary(model1))
 cat(" R squared = ", summary(model1)$r.squared, "\n", 
     "Residual standard error = ", summary(model1)$sigma)
+model2 <- lm(speed ~ yearnew, data = derby.df)
+coef(summary(model2))
+cat(" R squared = ", summary(model2)$r.squared, "\n", 
+    "Residual standard error = ", summary(model2)$sigma)
+# Residual diagnostics for Model 2
+par(mfrow=c(2,2))
+plot(model2)
+par(mfrow=c(1,1))
+# Fitted models for Model 2 and Model 2Q
+ggplot(derby.df, aes(x = year, y = speed)) +
+  geom_point() +
+  stat_smooth(method = "lm", formula = y ~ x, 
+              se = FALSE, linetype = 1) +
+  stat_smooth(method = "lm", formula = y ~ x + I(x^2), 
+              se = FALSE, linetype = 2)
+```
+
+```{r model2Q, comment=NA}
+derby.df <- mutate(derby.df, yearnew2 = yearnew^2)
+model2q <- lm(speed ~ yearnew + yearnew2, data = derby.df)
+```
+
+```{r, echo=FALSE, message=FALSE}
+coef(summary(model2q))
+cat(" R squared = ", summary(model2q)$r.squared, "\n", 
+    "Residual standard error = ", summary(model2q)$sigma)
+```
+
+```{r resid2q, fig.align = "center", out.width = "90%", fig.cap = 'Residual plots for Model 2Q.', echo=FALSE, warning=FALSE}
+# Residual diagnostics for Model 2
+par(mfrow=c(2,2))
+plot(model2q)
+par(mfrow=c(1,1))
+```
+```{r model4, comment=NA}
+model4 <- lm(speed ~ yearnew + fast, data = derby.df)
+```
+```{r, echo=FALSE, message=FALSE}
+coef(summary(model4))
+cat(" R squared = ", summary(model4)$r.squared, "\n", 
+    "Residual standard error = ", summary(model4)$sigma)
+```
+```{r model4boot, comment=NA, message=FALSE}
+# updated code from tobiasgerstenberg on github
+set.seed(413)
+bootreg <- derby.df %>% 
+  bootstraps(1000) %>%
+  pull(splits) %>% 
+  map_dfr(~lm(speed ~ yearnew + fast, data = .) %>% 
+            tidy())
+bootreg %>% 
+  group_by(term) %>% 
+  dplyr::summarize(low=quantile(estimate, .025),
+            high=quantile(estimate, .975))
+```
+```{r boot4, fig.align = "center", out.width = "90%", fig.cap = 'Bootstrapped distributions for Model 4 coefficients.', echo=FALSE, warning=FALSE}
+ggplot(bootreg, aes(estimate)) + 
+  geom_histogram(bins = 10, color = "black", fill = "white") + 
+  facet_wrap(~ term, scales="free")
 ```
 ## Including Plots
 

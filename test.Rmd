@@ -32,6 +32,7 @@ derby.df <- derby.df %>%
           fastfactor = ifelse(fast == 0, "not fast", "fast"))
 ```
 
+
 ```{r}
 table1 <- derby.df %>%
   filter(row_number() < 6 | row_number() > 117)
@@ -128,6 +129,29 @@ bootreg %>%
 ggplot(bootreg, aes(estimate)) + 
   geom_histogram(bins = 10, color = "black", fill = "white") + 
   facet_wrap(~ term, scales="free")
+```
+```{r model0, comment=NA}
+model0 <- lm(speed ~ yearnew + yearnew2 + fast + good +
+               starters, data = derby.df)
+```
+```{r, echo=FALSE, message=FALSE}
+coef(summary(model0))
+cat(" R squared = ", summary(model0)$r.squared, "\n", 
+    "Residual standard error = ", summary(model0)$sigma)
+```
+```{r comment=NA, message=FALSE}
+# Compare models with and without terms for track condition
+model0_reduced <- lm(speed ~ yearnew + yearnew2 + 
+                       starters, data = derby.df)
+drop_in_dev <- anova(model0_reduced, model0, test = "F")
+```
+```{r comment=NA, message=F, echo=F}
+did_print <- data.frame(ResidDF=drop_in_dev$`Res.Df`,
+    RSS=drop_in_dev$RSS,
+    SS=drop_in_dev$F, Df=drop_in_dev$Df,
+    pval=drop_in_dev$`Pr(>F)`)
+row.names(did_print) <- row.names(drop_in_dev)
+did_print
 ```
 ## Including Plots
 
